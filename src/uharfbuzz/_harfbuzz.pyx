@@ -293,8 +293,11 @@ cdef class Blob:
     @classmethod
     def from_file_path(cls, filename: Union[str, Path]):
         cdef bytes packed = os.fsencode(filename)
+        cdef hb_blob_t* blob = hb_blob_create_from_file_or_fail(<char*>packed)
+        if blob == NULL:
+            raise FileNotFoundError()
         cdef Blob inst = cls(None)
-        inst._hb_blob = hb_blob_create_from_file(<char*>packed)
+        inst._hb_blob = blob
         return inst
 
     def __dealloc__(self):
